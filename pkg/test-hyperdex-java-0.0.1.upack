@@ -1,0 +1,15 @@
+package test-hyperdex-java
+| source="test-hyperdex-java"
+| deb section="net"
+| version="0.0.1"
+| release="1"
+| license="BSD"
+| copyright="2014 Cornell University"
+| homepage="http://hyperdex.org"
+| tarball="http://hyperdex.org/src/test-hyperdex-java-{version}.tar.gz"
+| configure=""
+| summary="Check a HyperDex install"
+| build-requires="python, hyperdex-daemon, hyperdex-coordinator, python-hyperdex-admin, java-hyperdex-client"
+| requires=""
++ {bindir}/test-hyperdex
+'''{{summary}}'''

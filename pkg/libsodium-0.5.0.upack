@@ -1,0 +1,83 @@
+package libsodium
+| source="libsodium"
+| debian name="libsodium10"
+| version="0.5.0"
+| release="1"
+| license="BSD"
+| copyright="2014 Robert Escriva"
+| homepage="http://hyperdex.org"
+| tarball="http://hyperdex.org/src/libsodium-{version}.tar.gz"
+| debian section="libs"
+| configure="--disable-static"
+| build-requires="{pkg-config}"
+| summary="Macaroons are distributed bearer tokens that are better than cookies!"
++ {libdir}/libsodium.so.10
++ {libdir}/libsodium.so.10.0.0
+'''{summary}'''
+
+subpackage libsodium-dev
+| name="libsodium-{dev}"
+| debian requires="libsodium10{self}"
+| fedora requires="libsodium{self}"
++ {includedir}/sodium/core.h
++ {includedir}/sodium/crypto_auth.h
++ {includedir}/sodium/crypto_auth_hmacsha256.h
++ {includedir}/sodium/crypto_auth_hmacsha512256.h
++ {includedir}/sodium/crypto_auth_hmacsha512.h
++ {includedir}/sodium/crypto_box_curve25519xsalsa20poly1305.h
++ {includedir}/sodium/crypto_box.h
++ {includedir}/sodium/crypto_core_hsalsa20.h
++ {includedir}/sodium/crypto_core_salsa2012.h
++ {includedir}/sodium/crypto_core_salsa208.h
++ {includedir}/sodium/crypto_core_salsa20.h
++ {includedir}/sodium/crypto_generichash_blake2b.h
++ {includedir}/sodium/crypto_generichash.h
++ {includedir}/sodium/crypto_hash.h
++ {includedir}/sodium/crypto_hash_sha256.h
++ {includedir}/sodium/crypto_hash_sha512.h
++ {includedir}/sodium/crypto_int32.h
++ {includedir}/sodium/crypto_int64.h
++ {includedir}/sodium/crypto_onetimeauth.h
++ {includedir}/sodium/crypto_onetimeauth_poly1305_donna.h
++ {includedir}/sodium/crypto_onetimeauth_poly1305.h
++ {includedir}/sodium/crypto_pwhash_scryptxsalsa208sha256.h
++ {includedir}/sodium/crypto_scalarmult_curve25519.h
++ {includedir}/sodium/crypto_scalarmult.h
++ {includedir}/sodium/crypto_secretbox.h
++ {includedir}/sodium/crypto_secretbox_xsalsa20poly1305.h
++ {includedir}/sodium/crypto_shorthash.h
++ {includedir}/sodium/crypto_shorthash_siphash24.h
++ {includedir}/sodium/crypto_sign_ed25519.h
++ {includedir}/sodium/crypto_sign_edwards25519sha512batch.h
++ {includedir}/sodium/crypto_sign.h
++ {includedir}/sodium/crypto_stream_aes128ctr.h
++ {includedir}/sodium/crypto_stream_aes256estream.h
++ {includedir}/sodium/crypto_stream.h
++ {includedir}/sodium/crypto_stream_salsa2012.h
++ {includedir}/sodium/crypto_stream_salsa208.h
++ {includedir}/sodium/crypto_stream_salsa20.h
++ {includedir}/sodium/crypto_stream_xsalsa20.h
++ {includedir}/sodium/crypto_uint16.h
++ {includedir}/sodium/crypto_uint32.h
++ {includedir}/sodium/crypto_uint64.h
++ {includedir}/sodium/crypto_uint8.h
++ {includedir}/sodium/crypto_verify_16.h
++ {includedir}/sodium/crypto_verify_32.h
++ {includedir}/sodium/crypto_verify_64.h
++ {includedir}/sodium/export.h
++ {includedir}/sodium.h
++ {includedir}/sodium/randombytes.h
++ {includedir}/sodium/randombytes_salsa20_random.h
++ {includedir}/sodium/randombytes_sysrandom.h
++ {includedir}/sodium/runtime.h
++ {includedir}/sodium/utils.h
++ {includedir}/sodium/version.h
++ {libdir}/pkgconfig/libsodium.pc
++ {libdir}/libsodium.so
+'''{summary}'''
+
+exclude {libdir}/libsodium.la
+
+context
+| debian pkg-config="pkg-config"
+| fedora pkg-config="pkgconfig"

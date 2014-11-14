@@ -1,0 +1,15 @@
+package test-hyperdex-python
+| source="test-hyperdex-python"
+| deb section="net"
+| version="0.0.1"
+| release="1"
+| license="BSD"
+| copyright="2014 Cornell University"
+| homepage="http://hyperdex.org"
+| tarball="http://hyperdex.org/src/test-hyperdex-python-{version}.tar.gz"
+| configure=""
+| summary="Check a HyperDex install"
+| build-requires="python, hyperdex-daemon, hyperdex-coordinator, python-hyperdex-client, python-hyperdex-admin"
+| requires=""
++ {bindir}/test-hyperdex
+'''{{summary}}'''

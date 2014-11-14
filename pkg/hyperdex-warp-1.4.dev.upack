@@ -1,0 +1,218 @@
+package hyperdex-warp
+| source="hyperdex-warp"
+| deb section="net"
+| version="1.4.dev"
+| release="1"
+| epoch="1"
+| license="Proprietary"
+| copyright="2012-2014 United Networks, LLC"
+| homepage="http://hyperdex.org"
+| tarball="http://hyperdex.org/src/hyperdex-warp-{version}.tar.gz"
+| configure="--disable-static --enable-evaluation-mode --enable-python-bindings --enable-java-bindings --enable-ruby-bindings"
+| summary="A feature-rich distributed key-value store"
+| build-requires="{pkg-config}, {popt-dev}, {glog-dev}, {dep-python}, {dep-java}, {dep-ruby}, libpo6-{dev}, libe-{dev}, libbusybee-{dev}, {hyperleveldb-dev}, replicant, libreplicant-{dev}, libreplicant-state-machine-{dev}, {json-dev}"
+| requires="hyperdex-coordinator-warp, hyperdex-daemon-warp, hyperdex-tools-warp, python-hyperdex-client-warp, python-hyperdex-admin-warp"
+| conflicts="hyperdex"
+'''{summary}'''
+
+subpackage hyperdex-common-warp
+| summary="The \"hyperdex\" command"
+| conflicts="hyperdex-common"
++ {bindir}/hyperdex
++ {mandir}/man1/hyperdex.1*
+'''{summary}'''
+
+subpackage hyperdex-coordinator-warp
+| summary="The coordinator for HyperDex"
+| requires="hyperdex-common-warp, replicant-daemon"
+| conflicts="hyperdex-coordinator"
++ {libexecdir}/hyperdex-warp-{version}/hyperdex-coordinator
++ {libexecdir}/hyperdex-warp-{version}/libhyperdex-coordinator.so
++ {libexecdir}/hyperdex-warp-{version}/libhyperdex-coordinator.so.0
++ {libexecdir}/hyperdex-warp-{version}/libhyperdex-coordinator.so.0.0.0
++ {mandir}/man1/hyperdex-coordinator.1*
++ deb "initscripts/sysv/init.d/hyperdex-coordinator /etc/init.d"
++ deb "initscripts/sysv/default/hyperdex-coordinator /etc/default"
+'''{summary}'''
+
+subpackage hyperdex-daemon-warp
+| summary="The daemon for HyperDex"
+| requires="hyperdex-common-warp"
+| conflicts="hyperdex-daemon"
++ {libexecdir}/hyperdex-warp-{version}/hyperdex-daemon
++ {mandir}/man1/hyperdex-daemon.1*
++ deb "initscripts/sysv/init.d/hyperdex-daemon /etc/init.d"
++ deb "initscripts/sysv/default/hyperdex-daemon /etc/default"
+'''{summary}'''
+
+subpackage hyperdex-tools-warp
+| summary="Tools for managing a HyperDex cluster"
+| conflicts="hyperdex-tools"
++ {libexecdir}/hyperdex-warp-{version}/hyperdex-add-index
++ {libexecdir}/hyperdex-warp-{version}/hyperdex-add-space
++ {libexecdir}/hyperdex-warp-{version}/hyperdex-backup
++ {libexecdir}/hyperdex-warp-{version}/hyperdex-backup-manager
++ {libexecdir}/hyperdex-warp-{version}/hyperdex-list-spaces
++ {libexecdir}/hyperdex-warp-{version}/hyperdex-mv-space
++ {libexecdir}/hyperdex-warp-{version}/hyperdex-noc
++ {libexecdir}/hyperdex-warp-{version}/hyperdex-perf-counters
++ {libexecdir}/hyperdex-warp-{version}/hyperdex-raw-backup
++ {libexecdir}/hyperdex-warp-{version}/hyperdex-rm-index
++ {libexecdir}/hyperdex-warp-{version}/hyperdex-rm-space
++ {libexecdir}/hyperdex-warp-{version}/hyperdex-server-forget
++ {libexecdir}/hyperdex-warp-{version}/hyperdex-server-kill
++ {libexecdir}/hyperdex-warp-{version}/hyperdex-server-offline
++ {libexecdir}/hyperdex-warp-{version}/hyperdex-server-online
++ {libexecdir}/hyperdex-warp-{version}/hyperdex-server-register
++ {libexecdir}/hyperdex-warp-{version}/hyperdex-set-fault-tolerance
++ {libexecdir}/hyperdex-warp-{version}/hyperdex-set-read-only
++ {libexecdir}/hyperdex-warp-{version}/hyperdex-set-read-write
++ {libexecdir}/hyperdex-warp-{version}/hyperdex-show-config
++ {libexecdir}/hyperdex-warp-{version}/hyperdex-validate-space
++ {libexecdir}/hyperdex-warp-{version}/hyperdex-wait-until-stable
++ {mandir}/man1/hyperdex-add-index.1*
++ {mandir}/man1/hyperdex-add-space.1*
++ {mandir}/man1/hyperdex-backup.1*
++ {mandir}/man1/hyperdex-backup-manager.1*
++ {mandir}/man1/hyperdex-list-spaces.1*
++ {mandir}/man1/hyperdex-mv-space.1*
++ {mandir}/man1/hyperdex-perf-counters.1*
++ {mandir}/man1/hyperdex-raw-backup.1*
++ {mandir}/man1/hyperdex-rm-index.1*
++ {mandir}/man1/hyperdex-rm-space.1*
++ {mandir}/man1/hyperdex-server-forget.1*
++ {mandir}/man1/hyperdex-server-kill.1*
++ {mandir}/man1/hyperdex-server-offline.1*
++ {mandir}/man1/hyperdex-server-online.1*
++ {mandir}/man1/hyperdex-server-register.1*
++ {mandir}/man1/hyperdex-set-fault-tolerance.1*
++ {mandir}/man1/hyperdex-set-read-only.1*
++ {mandir}/man1/hyperdex-set-read-write.1*
++ {mandir}/man1/hyperdex-show-config.1*
++ {mandir}/man1/hyperdex-validate-space.1*
++ {mandir}/man1/hyperdex-wait-until-stable.1*
+'''{summary}'''
+
+subpackage libhyperdex-client-warp
+| deb name="libhyperdex-client0-warp"
+| conflicts="libhyperdex-client"
+| deb conflicts="libhyperdex-client0"
+| summary="Client library for HyperDex"
++ {libdir}/libhyperdex-client.so.0
++ {libdir}/libhyperdex-client.so.0.0.0
+'''{summary}'''
+
+subpackage libhyperdex-client-dev-warp
+| name="libhyperdex-client-{dev}-warp"
+| summary="Client library for HyperDex (development files)"
+| deb requires="libhyperdex-{dev}-warp, libhyperdex-client0-warp"
+| rpm requires="libhyperdex-{dev}-warp, libhyperdex-client-warp"
+| conflicts="libhyperdex-client-{dev}"
++ {includedir}/hyperdex/client.h
++ {includedir}/hyperdex/client.hpp
++ {includedir}/hyperdex/datastructures.h
++ {includedir}/hyperdex/hyperspace_builder.h
++ {libdir}/libhyperdex-client.so
++ {libdir}/pkgconfig/hyperdex-client.pc
+'''{summary}'''
+
+subpackage libhyperdex-admin-warp
+| deb name="libhyperdex-admin0-warp"
+| conflicts="libhyperdex-admin"
+| deb conflicts="libhyperdex-admin0"
+| summary="Admin library for HyperDex"
++ {libdir}/libhyperdex-admin.so.0
++ {libdir}/libhyperdex-admin.so.0.0.0
+'''{summary}'''
+
+subpackage libhyperdex-admin-dev-warp
+| name="libhyperdex-admin-{dev}-warp"
+| summary="Admin library for HyperDex (development files)"
+| deb requires="libhyperdex-{dev}-warp, libhyperdex-admin0-warp"
+| rpm requires="libhyperdex-{dev}-warp, libhyperdex-admin-warp"
+| conflicts="libhyperdex-admin-{dev}"
++ {includedir}/hyperdex/admin.h
++ {includedir}/hyperdex/admin.hpp
++ {libdir}/libhyperdex-admin.so
++ {libdir}/pkgconfig/hyperdex-admin.pc
+'''{summary}'''
+
+subpackage libhyperdex-dev-warp
+| name="libhyperdex-{dev}-warp"
+| summary="Common includes for HyperDex"
+| conflicts="libhyperdex-{dev}"
++ {includedir}/hyperdex.h
+'''{summary}'''
+
+subpackage python-hyperdex-warp
+| summary="Python bindings for HyperDex"
+| conflicts="python-hyperdex"
++ {pythondir}/hyperdex/__init__.py
++ rpm {pythondir}/hyperdex/__init__.pyc
++ rpm {pythondir}/hyperdex/__init__.pyo
+'''{summary}'''
+
+subpackage python-hyperdex-client-warp
+| summary="Python client bindings for HyperDex"
+| deb requires="libpython2.7, libhyperdex-client0-warp, python-hyperdex-warp"
+| rpm requires="libhyperdex-client-warp, python-hyperdex-warp"
+| conflicts="python-hyperdex-client"
++ {pythondir}/hyperdex/client.so
+'''{summary}'''
+
+subpackage python-hyperdex-admin-warp
+| summary="Python admin bindings for HyperDex"
+| deb requires="libhyperdex-admin0-warp, python-hyperdex-warp"
+| rpm requires="libhyperdex-admin-warp, python-hyperdex-warp"
+| conflicts="python-hyperdex-admin"
++ {pythondir}/hyperdex/admin.so
+'''{summary}'''
+
+subpackage java-hyperdex-client-warp
+| summary="Java client bindings for HyperDex"
+| deb requires="libhyperdex-client0-warp, {dep-java}-warp"
+| rpm requires="libhyperdex-client-warp, {dep-java}-warp"
+| conflicts="java-hyperdex-client"
++ {javadir}/org.hyperdex.client-{version}.jar
++ {libdir}/libhyperdex-client-java.so.0.0.0
++ {libdir}/libhyperdex-client-java.so.0
++ {libdir}/libhyperdex-client-java.so
+'''{summary}'''
+
+subpackage ruby-hyperdex-warp
+| summary="Ruby client/admin bindings for HyperDex"
+| deb requires="ruby, libhyperdex-client0-warp"
+| rpm requires="ruby, libhyperdex-client-warp"
+| conflicts="ruby-hyperdex"
++ {rubydir}/hyperdex.so
+'''{summary}'''
+
+exclude {libexecdir}/hyperdex-warp-{version}/libhyperdex-coordinator.la
+exclude {libdir}/libhyperdex-admin.la
+exclude {libdir}/libhyperdex-client.la
+exclude {libdir}/libhyperdex-client-java.la
+exclude {pythondir}/hyperdex/admin.la
+exclude {pythondir}/hyperdex/client.la
+exclude {rubydir}/hyperdex.la
+
+context
+| deb pkg-config="pkg-config"
+| rpm pkg-config="pkgconfig"
+| deb popt-dev="libpopt-dev"
+| rpm popt-dev="popt-devel"
+| deb glog-dev="libgoogle-glog-dev"
+| rpm glog-dev="glog-devel"
+| deb hyperleveldb-dev="libhyperleveldb-dev"
+| rpm hyperleveldb-dev="hyperleveldb-devel"
+| deb dep-python="python-dev"
+| rpm dep-python="python-devel"
+| deb dep-java="default-jdk"
+| rpm dep-java="java-1.7.0-openjdk-devel"
+| deb dep-ruby="ruby, ruby-dev"
+| rpm dep-ruby="ruby ruby-devel"
+| deb rubydir="{libdir}/ruby/vendor_ruby/1.9.1/x86_64-linux"
+| rpm rubydir="{libdir}/ruby/vendor_ruby"
+| centos-6 rubydir="{libdir}/ruby/1.8/x86_64-linux/"
+| precise rubydir="{libdir}/ruby/vendor_ruby/1.8/x86_64-linux/"
+| deb json-dev="libjson0-dev"
+| rpm json-dev="json-c-devel"

@@ -1,0 +1,44 @@
+package hyperleveldb
+| source="hyperleveldb"
+| debian name="libhyperleveldb0"
+| version="1.1.0"
+| release="1"
+| license="BSD"
+| copyright="2011-2014 The LevelDB Authors"
+| homepage="http://hyperdex.org"
+| tarball="http://hyperdex.org/src/hyperleveldb-{version}.tar.gz"
+| debian section="libs"
+| configure="--disable-static"
+| summary="A fast key-value storage library"
++ {libdir}/libhyperleveldb.so.0
++ {libdir}/libhyperleveldb.so.0.0.0
+'''{summary}'''
+
+subpackage hyperleveldb-devel
+| debian name="libhyperleveldb-{dev}"
+| requires="{hyperleveldb}{self}"
+| summary="A fast key-value storage library (development files)"
++ {includedir}/hyperleveldb/cache.h
++ {includedir}/hyperleveldb/c.h
++ {includedir}/hyperleveldb/comparator.h
++ {includedir}/hyperleveldb/db.h
++ {includedir}/hyperleveldb/env.h
++ {includedir}/hyperleveldb/filter_policy.h
++ {includedir}/hyperleveldb/iterator.h
++ {includedir}/hyperleveldb/options.h
++ {includedir}/hyperleveldb/replay_iterator.h
++ {includedir}/hyperleveldb/slice.h
++ {includedir}/hyperleveldb/status.h
++ {includedir}/hyperleveldb/table_builder.h
++ {includedir}/hyperleveldb/table.h
++ {includedir}/hyperleveldb/write_batch.h
++ {libdir}/libhyperleveldb.so
++ {libdir}/pkgconfig/libhyperleveldb.pc
+
+exclude {libdir}/libhyperleveldb.la
+
+context
+| debian pkg-config="pkg-config"
+| fedora pkg-config="pkgconfig"
+| debian hyperleveldb="libhyperleveldb0"
+| fedora hyperleveldb="hyperleveldb"

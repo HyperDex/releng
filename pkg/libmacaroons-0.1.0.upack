@@ -1,0 +1,41 @@
+package libmacaroons
+| source="libmacaroons"
+| debian name="libmacaroons0"
+| version="0.1.0"
+| release="2"
+| license="BSD"
+| copyright="2014 Robert Escriva"
+| homepage="http://hyperdex.org"
+| tarball="http://hyperdex.org/src/libmacaroons-{version}.tar.gz"
+| debian section="libs"
+| configure="--disable-static --enable-python-bindings"
+| build-requires="{pkg-config}, {dep-python}, libsodium-{dev}"
+| summary="XXX"
++ {libdir}/libmacaroons.so.0
++ {libdir}/libmacaroons.so.0.0.0
+'''{summary}'''
+
+subpackage libmacaroons-dev
+| name="libmacaroons-{dev}"
+| debian requires="libmacaroons0{self}"
+| fedora requires="libmacaroons{self}"
++ {includedir}/macaroons.h
++ {libdir}/pkgconfig/libmacaroons.pc
++ {libdir}/libmacaroons.so
+'''{summary}'''
+
+subpackage python-macaroons
+| summary="Python bindings for libmacaroons"
+| deb requires="libpython2.7"
+| rpm requires=""
++ {pythondir}/macaroons.so
+'''{summary}'''
+
+exclude {libdir}/libmacaroons.la
+exclude {pythondir}/macaroons.la
+
+context
+| debian pkg-config="pkg-config"
+| fedora pkg-config="pkgconfig"
+| deb dep-python="python-dev"
+| rpm dep-python="python-devel"

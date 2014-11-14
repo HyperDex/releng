@@ -1,0 +1,7 @@
+PROCESSES
+SOURCES
+SOURCES-AUTO
+blobs/
+gitcache/
+gitrepos/
+jobs/

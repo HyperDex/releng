@@ -1,0 +1,17 @@
+Origin: HyperDex
+Label: HyperDex
+Codename: precise
+Architectures: amd64
+Components: main
+Description: Apt repository for HyperDex
+DebOverride: override.precise
+DscOverride: override.precise
+
+Origin: HyperDex
+Label: HyperDex
+Codename: trusty
+Architectures: amd64
+Components: main
+Description: Apt repository for HyperDex
+DebOverride: override.trusty
+DscOverride: override.trusty

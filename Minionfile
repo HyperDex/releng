@@ -1,0 +1,565 @@
+# Build po6 tarballs
+source po6 git git://git.hyperdex.org/po6.git branch master;
+
+process dist:po6 dockerfile dist/po6
+    dependencies po6
+    artifacts tar.gz, tar.bz2;
+
+# Build e tarballs
+source e git git://git.hyperdex.org/e.git branch master;
+
+process prereqs:e dockerfile dist/e-prereqs
+    dependencies dist:po6=>tar.gz
+    artifacts install-dir;
+
+process dist:e dockerfile dist/e
+    dependencies e, soft prereqs:e=>install-dir
+    artifacts tar.gz, tar.bz2;
+
+# Build busybee tarballs
+source busybee git git://git.hyperdex.org/busybee.git branch master;
+
+process prereqs:busybee dockerfile dist/busybee-prereqs
+    dependencies prereqs:e=>install-dir, dist:e=>tar.gz
+    artifacts install-dir;
+
+process dist:busybee dockerfile dist/busybee
+    dependencies busybee, soft prereqs:busybee=>install-dir
+    artifacts tar.gz, tar.bz2;
+
+# Build leveldb tarballs
+source leveldb git git://git.hyperdex.org/leveldb.git branch master;
+
+process dist:leveldb dockerfile dist/leveldb
+    dependencies leveldb
+    artifacts tar.gz, tar.bz2;
+
+# Build replicant tarballs
+source replicant git git://git.hyperdex.org/replicant.git branch master;
+
+process prereqs:replicant dockerfile dist/replicant-prereqs
+    dependencies prereqs:busybee=>install-dir, dist:busybee=>tar.gz, dist:leveldb=>tar.gz
+    artifacts install-dir;
+
+process dist:replicant dockerfile dist/replicant
+    dependencies replicant, soft prereqs:replicant=>install-dir
+    artifacts tar.gz, tar.bz2;
+
+# Build macaroons tarballs
+source libsodium.tar.gz fetch https://github.com/jedisct1/libsodium/releases/download/1.0.0/libsodium-1.0.0.tar.gz
+    sha256 ced1fe3d2066953fea94f307a92f8ae41bf0643739a44309cbe43aa881dbc9a5;
+source macaroons git git://git.hyperdex.org/libmacaroons.git branch master;
+
+process prereqs:macaroons dockerfile dist/macaroons-prereqs
+    dependencies libsodium.tar.gz
+    artifacts install-dir;
+
+process dist:macaroons dockerfile dist/macaroons
+    dependencies macaroons, soft prereqs:macaroons=>install-dir
+    artifacts tar.gz, tar.bz2;
+
+# Build HyperDex tarballs
+source hyperdex git git://git.hyperdex.org/HyperDex.git branch master;
+
+process prereqs:hyperdex dockerfile dist/hyperdex-prereqs
+    dependencies
+        prereqs:replicant=>install-dir,
+        dist:replicant=>tar.gz,
+        libsodium.tar.gz,
+        dist:macaroons=>tar.gz
+    artifacts install-dir;
+
+process dist:hyperdex dockerfile dist/hyperdex
+    dependencies hyperdex, soft prereqs:hyperdex=>install-dir
+    artifacts tar.gz, tar.bz2;
+
+# Build Warp tarballs
+source warp git ssh://gitosis@git.hyperdex.org/HyperDexWarp.git branch master;
+
+process dist:warp dockerfile dist/warp
+    dependencies warp, soft prereqs:hyperdex=>install-dir
+    artifacts tar.gz, tar.bz2;
+
+# Get the upack files
+source releng git git://git.hyperdex.org/hyperdex-releng.git branch master;
+
+process upack-files dockerfile pkg/upack
+    dependencies
+        dist:po6=>tar.gz,
+        dist:e=>tar.gz,
+        dist:busybee=>tar.gz,
+        dist:leveldb=>tar.gz,
+        dist:replicant=>tar.gz,
+        dist:macaroons=>tar.gz,
+        dist:hyperdex=>tar.gz,
+        dist:warp=>tar.gz,
+        releng
+    artifacts
+        po6.upack,
+        e.upack,
+        busybee.upack,
+        leveldb.upack,
+        replicant.upack,
+        macaroons.upack,
+        hyperdex.upack,
+        warp.upack;
+
+# Package po6
+process pkg:po6:centos6 dockerfile pkg/centos6/po6
+    dependencies upack-files=>po6.upack, dist:po6=>tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:po6:centos7 dockerfile pkg/centos7/po6
+    dependencies upack-files=>po6.upack, dist:po6=>tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:po6:debian7 dockerfile pkg/debian7/po6
+    dependencies upack-files=>po6.upack, dist:po6=>tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:po6:fedora20 dockerfile pkg/fedora20/po6
+    dependencies upack-files=>po6.upack, dist:po6=>tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:po6:ubuntu12.04 dockerfile pkg/ubuntu12.04/po6
+    dependencies upack-files=>po6.upack, dist:po6=>tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:po6:ubuntu14.04 dockerfile pkg/ubuntu14.04/po6
+    dependencies upack-files=>po6.upack, dist:po6=>tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:po6:ubuntu14.10 dockerfile pkg/ubuntu14.10/po6
+    dependencies upack-files=>po6.upack, dist:po6=>tar.gz
+    artifacts pkgs.tar.gz;
+
+# Package e
+process pkg:e:centos6 dockerfile pkg/centos6/e
+    dependencies upack-files=>e.upack, dist:e=>tar.gz,
+        full soft pkg:po6:centos6=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:e:centos7 dockerfile pkg/centos7/e
+    dependencies upack-files=>e.upack, dist:e=>tar.gz,
+        full soft pkg:po6:centos7=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:e:debian7 dockerfile pkg/debian7/e
+    dependencies upack-files=>e.upack, dist:e=>tar.gz,
+        full soft pkg:po6:debian7=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:e:fedora20 dockerfile pkg/fedora20/e
+    dependencies upack-files=>e.upack, dist:e=>tar.gz,
+        full soft pkg:po6:fedora20=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:e:ubuntu12.04 dockerfile pkg/ubuntu12.04/e
+    dependencies upack-files=>e.upack, dist:e=>tar.gz,
+        full soft pkg:po6:ubuntu12.04=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:e:ubuntu14.04 dockerfile pkg/ubuntu14.04/e
+    dependencies upack-files=>e.upack, dist:e=>tar.gz,
+        full soft pkg:po6:ubuntu14.04=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:e:ubuntu14.10 dockerfile pkg/ubuntu14.10/e
+    dependencies upack-files=>e.upack, dist:e=>tar.gz,
+        full soft pkg:po6:ubuntu14.10=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+
+# Package busybee
+process pkg:busybee:centos6 dockerfile pkg/centos6/busybee
+    dependencies upack-files=>busybee.upack, dist:busybee=>tar.gz,
+        full soft pkg:po6:centos6=>pkgs.tar.gz,
+        full soft pkg:e:centos6=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:busybee:centos7 dockerfile pkg/centos7/busybee
+    dependencies upack-files=>busybee.upack, dist:busybee=>tar.gz,
+        full soft pkg:po6:centos7=>pkgs.tar.gz,
+        full soft pkg:e:centos7=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:busybee:debian7 dockerfile pkg/debian7/busybee
+    dependencies upack-files=>busybee.upack, dist:busybee=>tar.gz,
+        full soft pkg:po6:debian7=>pkgs.tar.gz,
+        full soft pkg:e:debian7=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:busybee:fedora20 dockerfile pkg/fedora20/busybee
+    dependencies upack-files=>busybee.upack, dist:busybee=>tar.gz,
+        full soft pkg:po6:fedora20=>pkgs.tar.gz,
+        full soft pkg:e:fedora20=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:busybee:ubuntu12.04 dockerfile pkg/ubuntu12.04/busybee
+    dependencies upack-files=>busybee.upack, dist:busybee=>tar.gz,
+        full soft pkg:po6:ubuntu12.04=>pkgs.tar.gz,
+        full soft pkg:e:ubuntu12.04=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:busybee:ubuntu14.04 dockerfile pkg/ubuntu14.04/busybee
+    dependencies upack-files=>busybee.upack, dist:busybee=>tar.gz,
+        full soft pkg:po6:ubuntu14.04=>pkgs.tar.gz,
+        full soft pkg:e:ubuntu14.04=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:busybee:ubuntu14.10 dockerfile pkg/ubuntu14.10/busybee
+    dependencies upack-files=>busybee.upack, dist:busybee=>tar.gz,
+        full soft pkg:po6:ubuntu14.10=>pkgs.tar.gz,
+        full soft pkg:e:ubuntu14.10=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+
+# Package leveldb
+process pkg:leveldb:centos6 dockerfile pkg/centos6/leveldb
+    dependencies upack-files=>leveldb.upack, dist:leveldb=>tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:leveldb:centos7 dockerfile pkg/centos7/leveldb
+    dependencies upack-files=>leveldb.upack, dist:leveldb=>tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:leveldb:debian7 dockerfile pkg/debian7/leveldb
+    dependencies upack-files=>leveldb.upack, dist:leveldb=>tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:leveldb:fedora20 dockerfile pkg/fedora20/leveldb
+    dependencies upack-files=>leveldb.upack, dist:leveldb=>tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:leveldb:ubuntu12.04 dockerfile pkg/ubuntu12.04/leveldb
+    dependencies upack-files=>leveldb.upack, dist:leveldb=>tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:leveldb:ubuntu14.04 dockerfile pkg/ubuntu14.04/leveldb
+    dependencies upack-files=>leveldb.upack, dist:leveldb=>tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:leveldb:ubuntu14.10 dockerfile pkg/ubuntu14.10/leveldb
+    dependencies upack-files=>leveldb.upack, dist:leveldb=>tar.gz
+    artifacts pkgs.tar.gz;
+
+# Package replicant
+source glog.centos6.pkgs.tar.gz fetch http://hyperdex.org/src/glog.centos6.tar.gz
+    sha256 1b59f6393950b36f2f4dc823d8c071d045ff17c21f89fce87509228232ec3e84;
+process pkg:replicant:centos6 dockerfile pkg/centos6/replicant
+    dependencies upack-files=>replicant.upack, dist:replicant=>tar.gz,
+        full soft glog.centos6.pkgs.tar.gz,
+        full soft pkg:po6:centos6=>pkgs.tar.gz,
+        full soft pkg:e:centos6=>pkgs.tar.gz,
+        full soft pkg:busybee:centos6=>pkgs.tar.gz,
+        full soft pkg:leveldb:centos6=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+source glog.centos7.pkgs.tar.gz fetch http://hyperdex.org/src/glog.centos7.tar.gz
+    sha256 e633e633335dc75714319e065e9c81da3c240370a3a8a3a6bd0455f32449b205;
+process pkg:replicant:centos7 dockerfile pkg/centos7/replicant
+    dependencies upack-files=>replicant.upack, dist:replicant=>tar.gz,
+        full soft glog.centos7.pkgs.tar.gz,
+        full soft pkg:po6:centos7=>pkgs.tar.gz,
+        full soft pkg:e:centos7=>pkgs.tar.gz,
+        full soft pkg:busybee:centos7=>pkgs.tar.gz,
+        full soft pkg:leveldb:centos7=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+source glog.debian7.pkgs.tar.gz fetch http://hyperdex.org/src/glog.debian7.tar.gz
+    sha256 838ac04746ee9a0167d633d822aa68b9045452f701dfe370837f58df31d8fec9;
+process pkg:replicant:debian7 dockerfile pkg/debian7/replicant
+    dependencies upack-files=>replicant.upack, dist:replicant=>tar.gz,
+        full soft glog.debian7.pkgs.tar.gz,
+        full soft pkg:po6:debian7=>pkgs.tar.gz,
+        full soft pkg:e:debian7=>pkgs.tar.gz,
+        full soft pkg:busybee:debian7=>pkgs.tar.gz,
+        full soft pkg:leveldb:debian7=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:replicant:fedora20 dockerfile pkg/fedora20/replicant
+    dependencies upack-files=>replicant.upack, dist:replicant=>tar.gz,
+        full soft pkg:po6:fedora20=>pkgs.tar.gz,
+        full soft pkg:e:fedora20=>pkgs.tar.gz,
+        full soft pkg:busybee:fedora20=>pkgs.tar.gz,
+        full soft pkg:leveldb:fedora20=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+source glog.ubuntu12.04.pkgs.tar.gz fetch http://hyperdex.org/src/glog.ubuntu12.04.tar.gz
+    sha256 052a0f68fdb0c5017657d71b39c66321d65628fe383cbbc884ab8844c9f4cdd8;
+process pkg:replicant:ubuntu12.04 dockerfile pkg/ubuntu12.04/replicant
+    dependencies upack-files=>replicant.upack, dist:replicant=>tar.gz,
+        full soft glog.ubuntu12.04.pkgs.tar.gz,
+        full soft pkg:po6:ubuntu12.04=>pkgs.tar.gz,
+        full soft pkg:e:ubuntu12.04=>pkgs.tar.gz,
+        full soft pkg:busybee:ubuntu12.04=>pkgs.tar.gz,
+        full soft pkg:leveldb:ubuntu12.04=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:replicant:ubuntu14.04 dockerfile pkg/ubuntu14.04/replicant
+    dependencies upack-files=>replicant.upack, dist:replicant=>tar.gz,
+        full soft pkg:po6:ubuntu14.04=>pkgs.tar.gz,
+        full soft pkg:e:ubuntu14.04=>pkgs.tar.gz,
+        full soft pkg:busybee:ubuntu14.04=>pkgs.tar.gz,
+        full soft pkg:leveldb:ubuntu14.04=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:replicant:ubuntu14.10 dockerfile pkg/ubuntu14.10/replicant
+    dependencies upack-files=>replicant.upack, dist:replicant=>tar.gz,
+        full soft pkg:po6:ubuntu14.10=>pkgs.tar.gz,
+        full soft pkg:e:ubuntu14.10=>pkgs.tar.gz,
+        full soft pkg:busybee:ubuntu14.10=>pkgs.tar.gz,
+        full soft pkg:leveldb:ubuntu14.10=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+
+# Package macaroons
+process pkg:macaroons:centos6 dockerfile pkg/centos6/macaroons
+    dependencies upack-files=>macaroons.upack, dist:macaroons=>tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:macaroons:centos7 dockerfile pkg/centos7/macaroons
+    dependencies upack-files=>macaroons.upack, dist:macaroons=>tar.gz
+    artifacts pkgs.tar.gz;
+source sodium.debian7.pkgs.tar.gz fetch http://hyperdex.org/src/sodium.debian7.tar.gz
+    sha256 463fc8dbc8f8fcd9c4c575747dfbd3b239899342619aa113d519ea23e8e90ef8;
+process pkg:macaroons:debian7 dockerfile pkg/debian7/macaroons
+    dependencies upack-files=>macaroons.upack, dist:macaroons=>tar.gz,
+        full soft sodium.debian7.pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:macaroons:fedora20 dockerfile pkg/fedora20/macaroons
+    dependencies upack-files=>macaroons.upack, dist:macaroons=>tar.gz
+    artifacts pkgs.tar.gz;
+source sodium.ubuntu12.04.pkgs.tar.gz fetch http://hyperdex.org/src/sodium.ubuntu12.04.tar.gz
+    sha256 f8af3b18e022fafcf3b8bb68be00128c1c9c0e3ab41cc3621361c833bc4f6406;
+process pkg:macaroons:ubuntu12.04 dockerfile pkg/ubuntu12.04/macaroons
+    dependencies upack-files=>macaroons.upack, dist:macaroons=>tar.gz,
+        full soft sodium.ubuntu12.04.pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+source sodium.ubuntu14.04.pkgs.tar.gz fetch http://hyperdex.org/src/sodium.ubuntu14.04.tar.gz
+    sha256 3c9871ea210b1a7e8ec80254c5fbefeae4b34b452ab98110cf0a078309234c43;
+process pkg:macaroons:ubuntu14.04 dockerfile pkg/ubuntu14.04/macaroons
+    dependencies upack-files=>macaroons.upack, dist:macaroons=>tar.gz,
+        full soft sodium.ubuntu14.04.pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+
+# Package hyperdex
+process pkg:hyperdex:centos6 dockerfile pkg/centos6/hyperdex
+    dependencies upack-files=>hyperdex.upack, dist:hyperdex=>tar.gz,
+        full soft glog.centos6.pkgs.tar.gz,
+        full soft pkg:po6:centos6=>pkgs.tar.gz,
+        full soft pkg:e:centos6=>pkgs.tar.gz,
+        full soft pkg:busybee:centos6=>pkgs.tar.gz,
+        full soft pkg:leveldb:centos6=>pkgs.tar.gz,
+        full soft pkg:replicant:centos6=>pkgs.tar.gz,
+        full soft pkg:macaroons:centos6=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:hyperdex:centos7 dockerfile pkg/centos7/hyperdex
+    dependencies upack-files=>hyperdex.upack, dist:hyperdex=>tar.gz,
+        full soft glog.centos7.pkgs.tar.gz,
+        full soft pkg:po6:centos7=>pkgs.tar.gz,
+        full soft pkg:e:centos7=>pkgs.tar.gz,
+        full soft pkg:busybee:centos7=>pkgs.tar.gz,
+        full soft pkg:leveldb:centos7=>pkgs.tar.gz,
+        full soft pkg:replicant:centos7=>pkgs.tar.gz,
+        full soft pkg:macaroons:centos7=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:hyperdex:debian7 dockerfile pkg/debian7/hyperdex
+    dependencies upack-files=>hyperdex.upack, dist:hyperdex=>tar.gz,
+        full soft glog.debian7.pkgs.tar.gz,
+        full soft sodium.debian7.pkgs.tar.gz,
+        full soft pkg:po6:debian7=>pkgs.tar.gz,
+        full soft pkg:e:debian7=>pkgs.tar.gz,
+        full soft pkg:busybee:debian7=>pkgs.tar.gz,
+        full soft pkg:leveldb:debian7=>pkgs.tar.gz,
+        full soft pkg:replicant:debian7=>pkgs.tar.gz,
+        full soft pkg:macaroons:debian7=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:hyperdex:fedora20 dockerfile pkg/fedora20/hyperdex
+    dependencies upack-files=>hyperdex.upack, dist:hyperdex=>tar.gz,
+        full soft pkg:po6:fedora20=>pkgs.tar.gz,
+        full soft pkg:e:fedora20=>pkgs.tar.gz,
+        full soft pkg:busybee:fedora20=>pkgs.tar.gz,
+        full soft pkg:leveldb:fedora20=>pkgs.tar.gz,
+        full soft pkg:replicant:fedora20=>pkgs.tar.gz,
+        full soft pkg:macaroons:fedora20=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+source json.ubuntu12.04.pkgs.tar.gz fetch http://hyperdex.org/src/json.ubuntu12.04.tar.gz
+    sha256 45a10ea6caa9f6c2ecaf17a103a386d4ebcecc22c47b882f22e97deb052e2ddb;
+process pkg:hyperdex:ubuntu12.04 dockerfile pkg/ubuntu12.04/hyperdex
+    dependencies upack-files=>hyperdex.upack, dist:hyperdex=>tar.gz,
+        full soft glog.ubuntu12.04.pkgs.tar.gz,
+        full soft sodium.ubuntu12.04.pkgs.tar.gz,
+        full soft json.ubuntu12.04.pkgs.tar.gz,
+        full soft pkg:po6:ubuntu12.04=>pkgs.tar.gz,
+        full soft pkg:e:ubuntu12.04=>pkgs.tar.gz,
+        full soft pkg:busybee:ubuntu12.04=>pkgs.tar.gz,
+        full soft pkg:leveldb:ubuntu12.04=>pkgs.tar.gz,
+        full soft pkg:replicant:ubuntu12.04=>pkgs.tar.gz,
+        full soft pkg:macaroons:ubuntu12.04=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:hyperdex:ubuntu14.04 dockerfile pkg/ubuntu14.04/hyperdex
+    dependencies upack-files=>hyperdex.upack, dist:hyperdex=>tar.gz,
+        full soft sodium.ubuntu14.04.pkgs.tar.gz,
+        full soft pkg:po6:ubuntu14.04=>pkgs.tar.gz,
+        full soft pkg:e:ubuntu14.04=>pkgs.tar.gz,
+        full soft pkg:busybee:ubuntu14.04=>pkgs.tar.gz,
+        full soft pkg:leveldb:ubuntu14.04=>pkgs.tar.gz,
+        full soft pkg:replicant:ubuntu14.04=>pkgs.tar.gz,
+        full soft pkg:macaroons:ubuntu14.04=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+
+# Package warp-eval
+process pkg:warp-eval:centos6 dockerfile pkg/centos6/warp-eval
+    dependencies upack-files=>warp.upack, dist:warp=>tar.gz,
+        full soft glog.centos6.pkgs.tar.gz,
+        full soft pkg:po6:centos6=>pkgs.tar.gz,
+        full soft pkg:e:centos6=>pkgs.tar.gz,
+        full soft pkg:busybee:centos6=>pkgs.tar.gz,
+        full soft pkg:leveldb:centos6=>pkgs.tar.gz,
+        full soft pkg:replicant:centos6=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:warp-eval:centos7 dockerfile pkg/centos7/warp-eval
+    dependencies upack-files=>warp.upack, dist:warp=>tar.gz,
+        full soft glog.centos7.pkgs.tar.gz,
+        full soft pkg:po6:centos7=>pkgs.tar.gz,
+        full soft pkg:e:centos7=>pkgs.tar.gz,
+        full soft pkg:busybee:centos7=>pkgs.tar.gz,
+        full soft pkg:leveldb:centos7=>pkgs.tar.gz,
+        full soft pkg:replicant:centos7=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:warp-eval:debian7 dockerfile pkg/debian7/warp-eval
+    dependencies upack-files=>warp.upack, dist:warp=>tar.gz,
+        full soft glog.debian7.pkgs.tar.gz,
+        full soft pkg:po6:debian7=>pkgs.tar.gz,
+        full soft pkg:e:debian7=>pkgs.tar.gz,
+        full soft pkg:busybee:debian7=>pkgs.tar.gz,
+        full soft pkg:leveldb:debian7=>pkgs.tar.gz,
+        full soft pkg:replicant:debian7=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:warp-eval:fedora20 dockerfile pkg/fedora20/warp-eval
+    dependencies upack-files=>warp.upack, dist:warp=>tar.gz,
+        full soft pkg:po6:fedora20=>pkgs.tar.gz,
+        full soft pkg:e:fedora20=>pkgs.tar.gz,
+        full soft pkg:busybee:fedora20=>pkgs.tar.gz,
+        full soft pkg:leveldb:fedora20=>pkgs.tar.gz,
+        full soft pkg:replicant:fedora20=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:warp-eval:ubuntu12.04 dockerfile pkg/ubuntu12.04/warp-eval
+    dependencies upack-files=>warp.upack, dist:warp=>tar.gz,
+        full soft glog.ubuntu12.04.pkgs.tar.gz,
+        full soft json.ubuntu12.04.pkgs.tar.gz,
+        full soft pkg:po6:ubuntu12.04=>pkgs.tar.gz,
+        full soft pkg:e:ubuntu12.04=>pkgs.tar.gz,
+        full soft pkg:busybee:ubuntu12.04=>pkgs.tar.gz,
+        full soft pkg:leveldb:ubuntu12.04=>pkgs.tar.gz,
+        full soft pkg:replicant:ubuntu12.04=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+process pkg:warp-eval:ubuntu14.04 dockerfile pkg/ubuntu14.04/warp-eval
+    dependencies upack-files=>warp.upack, dist:warp=>tar.gz,
+        full soft pkg:po6:ubuntu14.04=>pkgs.tar.gz,
+        full soft pkg:e:ubuntu14.04=>pkgs.tar.gz,
+        full soft pkg:busybee:ubuntu14.04=>pkgs.tar.gz,
+        full soft pkg:leveldb:ubuntu14.04=>pkgs.tar.gz,
+        full soft pkg:replicant:ubuntu14.04=>pkgs.tar.gz
+    artifacts pkgs.tar.gz;
+
+# Repositories
+process repo:centos dockerfile repo/centos
+    dependencies
+        glog.centos6.pkgs.tar.gz,
+        full pkg:po6:centos6=>pkgs.tar.gz,
+        full pkg:e:centos6=>pkgs.tar.gz,
+        full pkg:busybee:centos6=>pkgs.tar.gz,
+        full pkg:leveldb:centos6=>pkgs.tar.gz,
+        full pkg:replicant:centos6=>pkgs.tar.gz,
+        full pkg:macaroons:centos6=>pkgs.tar.gz,
+        full pkg:hyperdex:centos6=>pkgs.tar.gz,
+        full pkg:warp-eval:centos6=>pkgs.tar.gz,
+        glog.centos7.pkgs.tar.gz,
+        full pkg:po6:centos7=>pkgs.tar.gz,
+        full pkg:e:centos7=>pkgs.tar.gz,
+        full pkg:busybee:centos7=>pkgs.tar.gz,
+        full pkg:leveldb:centos7=>pkgs.tar.gz,
+        full pkg:replicant:centos7=>pkgs.tar.gz,
+        full pkg:macaroons:centos7=>pkgs.tar.gz,
+        full pkg:hyperdex:centos7=>pkgs.tar.gz,
+        full pkg:warp-eval:centos7=>pkgs.tar.gz
+    artifacts tar.gz;
+
+process repo:debian dockerfile repo/debian
+    dependencies
+        glog.debian7.pkgs.tar.gz,
+        sodium.debian7.pkgs.tar.gz,
+        full pkg:po6:debian7=>pkgs.tar.gz,
+        full pkg:e:debian7=>pkgs.tar.gz,
+        full pkg:busybee:debian7=>pkgs.tar.gz,
+        full pkg:leveldb:debian7=>pkgs.tar.gz,
+        full pkg:replicant:debian7=>pkgs.tar.gz,
+        full pkg:macaroons:debian7=>pkgs.tar.gz,
+        full pkg:hyperdex:debian7=>pkgs.tar.gz,
+        full pkg:warp-eval:debian7=>pkgs.tar.gz
+    artifacts tar.gz;
+
+process repo:fedora dockerfile repo/fedora
+    dependencies
+        full pkg:po6:fedora20=>pkgs.tar.gz,
+        full pkg:e:fedora20=>pkgs.tar.gz,
+        full pkg:busybee:fedora20=>pkgs.tar.gz,
+        full pkg:leveldb:fedora20=>pkgs.tar.gz,
+        full pkg:replicant:fedora20=>pkgs.tar.gz,
+        full pkg:macaroons:fedora20=>pkgs.tar.gz,
+        full pkg:hyperdex:fedora20=>pkgs.tar.gz,
+        full pkg:warp-eval:fedora20=>pkgs.tar.gz
+    artifacts tar.gz;
+
+process repo:ubuntu dockerfile repo/ubuntu
+    dependencies
+        glog.ubuntu12.04.pkgs.tar.gz,
+        json.ubuntu12.04.pkgs.tar.gz,
+        sodium.ubuntu12.04.pkgs.tar.gz,
+        full pkg:po6:ubuntu12.04=>pkgs.tar.gz,
+        full pkg:e:ubuntu12.04=>pkgs.tar.gz,
+        full pkg:busybee:ubuntu12.04=>pkgs.tar.gz,
+        full pkg:leveldb:ubuntu12.04=>pkgs.tar.gz,
+        full pkg:replicant:ubuntu12.04=>pkgs.tar.gz,
+        full pkg:macaroons:ubuntu12.04=>pkgs.tar.gz,
+        full pkg:hyperdex:ubuntu12.04=>pkgs.tar.gz,
+        full pkg:warp-eval:ubuntu12.04=>pkgs.tar.gz,
+        sodium.ubuntu14.04.pkgs.tar.gz,
+        full pkg:po6:ubuntu14.04=>pkgs.tar.gz,
+        full pkg:e:ubuntu14.04=>pkgs.tar.gz,
+        full pkg:busybee:ubuntu14.04=>pkgs.tar.gz,
+        full pkg:leveldb:ubuntu14.04=>pkgs.tar.gz,
+        full pkg:replicant:ubuntu14.04=>pkgs.tar.gz,
+        full pkg:macaroons:ubuntu14.04=>pkgs.tar.gz,
+        full pkg:hyperdex:ubuntu14.04=>pkgs.tar.gz,
+        full pkg:warp-eval:ubuntu14.04=>pkgs.tar.gz,
+        full pkg:po6:ubuntu14.10=>pkgs.tar.gz,
+        full pkg:e:ubuntu14.10=>pkgs.tar.gz,
+        full pkg:busybee:ubuntu14.10=>pkgs.tar.gz,
+        full pkg:leveldb:ubuntu14.10=>pkgs.tar.gz,
+        full pkg:replicant:ubuntu14.10=>pkgs.tar.gz
+    artifacts tar.gz;
+
+# Test installation from packages
+process test:install:centos6:packages dockerfile test/install/centos6/packages
+    dependencies dist:hyperdex=>tar.gz, repo:centos=>tar.gz;
+process test:install:centos7:packages dockerfile test/install/centos7/packages
+    dependencies dist:hyperdex=>tar.gz, repo:centos=>tar.gz;
+process test:install:debian7:packages dockerfile test/install/debian7/packages
+    dependencies dist:hyperdex=>tar.gz, repo:debian=>tar.gz;
+process test:install:fedora20:packages dockerfile test/install/fedora20/packages
+    dependencies dist:hyperdex=>tar.gz, repo:fedora=>tar.gz;
+process test:install:ubuntu12.04:packages dockerfile test/install/ubuntu12.04/packages
+    dependencies dist:hyperdex=>tar.gz, repo:ubuntu=>tar.gz;
+process test:install:ubuntu14.04:packages dockerfile test/install/ubuntu14.04/packages
+    dependencies dist:hyperdex=>tar.gz, repo:ubuntu=>tar.gz;
+
+# Universal Linux Binary
+source popt.tar.gz fetch http://rpm5.org/files/popt/popt-1.16.tar.gz 
+    sha256 e728ed296fe9f069a0e005003c3d6b2dde3d9cad453422a10d6558616d304cc8;
+source glog.tar.gz fetch https://google-glog.googlecode.com/files/glog-0.3.3.tar.gz
+    sha256 fbf90c2285ba0561db7a40f8a4eefb9aa963e7d399bd450363e959929fe849d0;
+source sodium.tar.gz fetch https://github.com/jedisct1/libsodium/releases/download/1.0.0/libsodium-1.0.0.tar.gz
+    sha256 ced1fe3d2066953fea94f307a92f8ae41bf0643739a44309cbe43aa881dbc9a5;
+source json.tar.gz fetch https://github.com/json-c/json-c/archive/json-c-0.11-20130402.tar.gz
+    sha256 9988283408c71838d8d62e5418e5abb5eb5300bd84c385fdc96143b5e8f10ed5;
+process pkg:linux-amd64 dockerfile pkg/linux-amd64
+    dependencies
+        popt.tar.gz,
+        glog.tar.gz,
+        sodium.tar.gz,
+        json.tar.gz,
+        dist:po6=>tar.gz,
+        dist:e=>tar.gz,
+        dist:busybee=>tar.gz,
+        dist:leveldb=>tar.gz,
+        dist:replicant=>tar.gz,
+        dist:macaroons=>tar.gz,
+        dist:hyperdex=>tar.gz
+    artifacts tar.gz;
+# Test said binary
+process test:install:centos6:universal dockerfile test/install/centos6/universal
+    dependencies dist:hyperdex=>tar.gz, pkg:linux-amd64=>tar.gz;
+process test:install:centos7:universal dockerfile test/install/centos7/universal
+    dependencies dist:hyperdex=>tar.gz, pkg:linux-amd64=>tar.gz;
+process test:install:debian7:universal dockerfile test/install/debian7/universal
+    dependencies dist:hyperdex=>tar.gz, pkg:linux-amd64=>tar.gz;
+process test:install:fedora20:universal dockerfile test/install/fedora20/universal
+    dependencies dist:hyperdex=>tar.gz, pkg:linux-amd64=>tar.gz;
+process test:install:ubuntu12.04:universal dockerfile test/install/ubuntu12.04/universal
+    dependencies dist:hyperdex=>tar.gz, pkg:linux-amd64=>tar.gz;
+process test:install:ubuntu14.04:universal dockerfile test/install/ubuntu14.04/universal
+    dependencies dist:hyperdex=>tar.gz, pkg:linux-amd64=>tar.gz;
+
+# Documentation
+process doc dockerfile doc
+    dependencies dist:hyperdex=>tar.gz
+    artifacts pdf, html;
